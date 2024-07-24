@@ -15,19 +15,19 @@ def GetName(stmt_str):
     return variables
 
 
-def StrandNorm(strand, indexDict):
+# def StrandNorm(strand, indexDict):
 
-    for i in range(0, len(strand)):
-        variables = GetName(str(strand[i]))
+#     for i in range(0, len(strand)):
+#         variables = GetName(str(strand[i]))
         
-        for name in variables:
-            if (name not in indexDict):
-                indexDict[name] = 't'+str(indexDict['max'])
-                indexDict['max'] = indexDict['max'] + 1
+#         for name in variables:
+#             if (name not in indexDict):
+#                 indexDict[name] = 't'+str(indexDict['max'])
+#                 indexDict['max'] = indexDict['max'] + 1
 
-            strand[i] = str(strand[i]).replace(name, indexDict[name])
+#             strand[i] = str(strand[i]).replace(name, indexDict[name])
         
-    return (strand, indexDict)
+#     return (strand, indexDict)
         
 
 def TypeNorm(stmt):
@@ -66,7 +66,11 @@ def TypeNorm(stmt):
             elif exType == 'Iex_CCall':
                 norm == 'CCall'
             elif ((exType == 'Iex_Unop') | (exType == 'Iex_Binop') | (exType == 'Iex_Triop') | (exType == 'Iex_Qop')):
-                norm == stmt.data.op
+                op = str(stmt.data.op)
+                for i in range(len(op)-1,-1,-1):
+                    if (not op[i:].isdigit()):
+                        break
+                norm == op[:i+1]
             else:
                 norm = 'stmt.data.tag'
 

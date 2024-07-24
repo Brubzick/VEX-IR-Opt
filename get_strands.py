@@ -26,10 +26,7 @@ def HandleIR(stmt_str):
     return (defS, refS)
 
 
-def GetStrands(node):
-
-    statements = node.block.vex.statements
-
+def GetStrands(statements):
     strands = []
 
     l = len(statements)
@@ -39,37 +36,35 @@ def GetStrands(node):
         stmt_str = str(stmt)
         strand = []
 
-        if ((stmt.tag != 'Ist_IMark') & (stmt.tag != 'Ist_AbiHint')):
-            refS = HandleIR(stmt_str)[1]
-            if (len(refS) != 0):
-                strand.append(stmt)
+        refS = HandleIR(stmt_str)[1]
+        if (len(refS) != 0):
+            strand.append(stmt)
 
-                for j in range(i-1, -1, -1):
-                    stmtT = statements[j]
-                    stmt_str_T = str(stmtT)
-                    defT, refT = HandleIR(stmt_str_T)
+            for j in range(i-1, -1, -1):
+                stmtT = statements[j]
+                stmt_str_T = str(stmtT)
+                defT, refT = HandleIR(stmt_str_T)
 
-                    if (refS.intersection(defT)):
-                        strand.append(stmtT)
-                        refS = refS.union(refT)
+                if (refS.intersection(defT)):
+                    strand.append(stmtT)
+                    refS = refS.union(refT)
 
-                strand.reverse()
-                strands.append(strand)
+            strand.reverse()
+            strands.append(strand)
 
     strands.reverse()
     return strands
 
-def GetAllStrandsNorm(cfg):
+def GetAllStrandsNorm(blockList):
     strandsNorm = []
 
-    for node in cfg.nodes():
-        if (not node.is_simprocedure):
-            strands = GetStrands(node)
+    for block in blockList:
+        strands = GetStrands(block)
 
-            for i in range(0, len(strands)):
-                for j in range(0, len(strands[i])):
-                    strands[i][j] = TypeNorm(strands[i][j])
+        for i in range(0, len(strands)):
+            for j in range(0, len(strands[i])):
+                strands[i][j] = TypeNorm(strands[i][j])
         
-            strandsNorm.extend(strands)
+        strandsNorm.extend(strands)
 
     return strandsNorm
