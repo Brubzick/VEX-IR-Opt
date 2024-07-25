@@ -1,36 +1,44 @@
 import angr
-from IR_opt import VEXOpt
-from get_strands import GetAllStrandsNorm
-from hash import GetHashedStrands
+from whole_process import VexOptHash
 
-proj1 = angr.Project('./dfs', auto_load_libs=False)
-proj2 = angr.Project('./dfs3', auto_load_libs=False)
+# Query
+proj1 = angr.Project('./C_files/dfs', auto_load_libs=False)
+# Target
+proj2 = angr.Project('./C_files/dfs3', auto_load_libs=False)
+proj3 = angr.Project('./C_files/bfs', auto_load_libs=False)
+proj4 = angr.Project('./C_files/bfs3', auto_load_libs=False)
+proj5 = angr.Project('./C_files/hello', auto_load_libs=False)
+proj6 = angr.Project('./C_files/hello3', auto_load_libs=False)
+proj7 = angr.Project('./C_files/insert_sort', auto_load_libs=False)
+proj8 = angr.Project('./C_files/shell_sort', auto_load_libs=False)
+proj9 = angr.Project('./C_files/whatever', auto_load_libs=False)
 
-cfg1 = proj1.analyses.CFGFast(normalize=True)
-cfg2 = proj2.analyses.CFGFast(normalize=True)
+hashedSet1 = VexOptHash(proj1)
+hashedSet2 = VexOptHash(proj2)
+hashedSet3 = VexOptHash(proj3)
+hashedSet4 = VexOptHash(proj4)
+hashedSet5 = VexOptHash(proj5)
+hashedSet6 = VexOptHash(proj6)
+hashedSet7 = VexOptHash(proj7)
+hashedSet8 = VexOptHash(proj8)
+hashedSet9 = VexOptHash(proj9)
 
-blockList1 = []
-blockList2 = []
+allTarSet = [hashedSet2,hashedSet3,hashedSet4,hashedSet5,hashedSet6,hashedSet7,hashedSet8,hashedSet9]
 
-for node in cfg1.nodes():
-    if (not node.is_simprocedure):
-        block = node.block.vex.statements
-        block = VEXOpt(block)
-        blockList1.append(block)
-
-for node in cfg2.nodes():
-    if (not node.is_simprocedure):
-        block = node.block.vex.statements
-        block = VEXOpt(block)
-        blockList2.append(block)
-
-
-strands1 = GetAllStrandsNorm(blockList1)
-strands2 = GetAllStrandsNorm(blockList2)
-
-hashedSet1 = GetHashedStrands(strands1)
-hashedSet2 = GetHashedStrands(strands2)
-
+# Compare 1 and 2
 intersection = set(hashedSet1).intersection(set(hashedSet2))
 
-print(len(intersection), len(set(hashedSet1)), len(set(hashedSet2)))
+# simScore
+simScore = 0
+for strand in intersection:
+    count = 0
+    for hashedSet in allTarSet:
+        count += hashedSet.count(strand)
+    
+    simScore += 8/count # number of targets divided by strand frequency
+
+print(simScore)
+print(len(set(hashedSet1)), len(set(hashedSet2)))
+
+
+
