@@ -249,28 +249,30 @@ def LSEliminate(block):
 # Store-Store Elimination
 def SSEliminate(block):
     i = 0
-    storedSet = {}
+    storedAddr = {}
 
     while (i < len(block)):
         stmt = block[i]
         delFlag = False
 
-        if stmt.tag == 'Ist_WrTmp':
-            wrTmp = pyvex.expr.RdTmp.get_instance(stmt.tmp)
-            if (wrTmp in storedSet):
-                del storedSet[wrTmp]
-
-        elif stmt.tag == 'Ist_Store':
-            if ((stmt.data, stmt.addr) in storedSet.items()):
-                block.remove(block[i])
+        if stmt.tag == 'Ist_Store':
+            tAddr = stmt.addr
+            if (tAddr in storedAddr):
+                block.remove(storedAddr[tAddr])
                 delFlag = True
-            else:
-                storedSet[stmt.data] = stmt.addr
+            storedAddr[tAddr] = stmt
+
+        elif stmt.tag =='Ist_WrTmp':
+            if stmt.data.tag == 'Iex_Load':
+                tAddr = stmt.data.addr
+                if (tAddr in storedAddr):
+                    del storedAddr[tAddr]
         
         if (not delFlag):
             i += 1
-    
+
     return block
+
 
 # Combine together
 def VEXOpt(block):
