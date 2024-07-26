@@ -5,13 +5,11 @@ proj = angr.Project('./dfs', auto_load_libs=False)
 
 cfg = proj.analyses.CFGFast(normalize=True)
 
-nodes = list(cfg.nodes())
-
-node = nodes[0]
-
-node.block.vex.pp()
-
-block = node.block.vex.statements
-block = VEXOpt(block)
-for stmt in block:
-    print(stmt)
+for node in cfg.nodes():
+    if (not node.is_simprocedure):
+        for stmt in node.block.vex.statements:
+            if stmt.tag =='Ist_Store':
+                print(stmt, stmt.addr)
+            elif stmt.tag == 'Ist_WrTmp':
+                if stmt.data.tag == 'Iex_Load':
+                    print(stmt, stmt.data.addr)

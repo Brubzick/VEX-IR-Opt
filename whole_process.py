@@ -1,4 +1,4 @@
-from IR_opt import VEXOpt
+from IR_opt_plus import VEXOpt
 from get_strands import GetAllStrandsNorm
 from hash import GetHashedStrands
 

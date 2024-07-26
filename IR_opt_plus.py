@@ -62,8 +62,7 @@ def RemoveBitwidth(block):
     
     return block
 
-
-# Copy Propagation (including reg)
+# Copy Propagation
 def RemoveCopy(block):
     copyDict = {}
     i = 0
@@ -91,15 +90,45 @@ def RemoveCopy(block):
             elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop') | (stmt.data.tag == 'Iex_CCall')):
                 args = stmt.data.args
                 for j in range(0, len(args)):
-                    if args[j].tag == 'Iex_RdTmp':
-                        if (copyDict.get(args[j])):
-                            block[i].data.args[j] = copyDict[args[j]]
-            
-        # replace the copied tmp for Put
+                    if (copyDict.get(args[j])):
+                        block[i].data.args[j] = copyDict[args[j]]
+            # replace the copied tmp for Load
+            elif stmt.data.tag == 'Iex_Load':
+                tmp = stmt.data.addr
+                if (copyDict.get(tmp)):
+                    block[i].data.addr = copyDict[tmp]
+
+            # GET
+            elif stmt.data.tag == 'Iex_Get':
+                refTmp = stmt.data.offset
+                while(copyDict.get(refTmp)):
+                    refTmp = copyDict.get(refTmp)
+                copyDict[wrTmp] = refTmp
+                block.remove(block[i])
+                delFlag = True
+
+        # replace the copied tmp for Store
+        elif stmt.tag == 'Ist_Store':
+            tmp = stmt.addr
+            if (copyDict.get(tmp)):
+                block[i].addr = copyDict[tmp]
+
+        # Put
         elif (stmt.tag == 'Ist_Put'):
+            regOffset = stmt.offset
+            # delete the copy link
+            if (copyDict.get(regOffset)):
+                del copyDict[regOffset]
+            
+            # add link
             if stmt.data.tag == 'Iex_RdTmp':
-                if (copyDict.get(stmt.data)):
-                    block[i].data = copyDict[stmt.data]
+                refTmp = stmt.data
+                while(copyDict.get(refTmp)):
+                    refTmp = copyDict.get(refTmp)
+                copyDict[regOffset] = refTmp
+                block.remove(block[i])
+                delFlag = True
+    
         # replace the copied tmp for Exit
         elif stmt.tag == 'Ist_Exit':
             if stmt.guard.tag == 'Iex_RdTmp':
@@ -120,7 +149,20 @@ def ConstFolding(block):
         stmt = block[i]
         delFlag = False
 
-        if stmt.tag == 'Ist_WrTmp':
+        # Put
+        if (stmt.tag == 'Ist_Put'):
+            regOffset = stmt.offset
+            if stmt.data.tag == 'Iex_Const':
+                constMapping[regOffset] = stmt.data
+                block.remove(block[i])
+                delFlag = True
+            elif stmt.data.tag == 'Iex_RdTmp':
+                if (constMapping.get(stmt.data)):
+                    constMapping[regOffset] = constMapping[stmt.data]
+                    block.remove(block[i])
+                    delFlag = True
+
+        elif stmt.tag == 'Ist_WrTmp':
             wrTmp = pyvex.expr.RdTmp.get_instance(stmt.tmp)
 
             # delete mapping
@@ -140,15 +182,20 @@ def ConstFolding(block):
             elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop') | (stmt.data.tag == 'Iex_CCall')):
                 args = stmt.data.args
                 for j in range(0, len(args)):
-                    if args[j].tag == 'Iex_RdTmp':
-                        if (constMapping.get(args[j])):
-                            block[i].data.args[j] = constMapping[args[j]]
-        
-        # replace tmp for put
-        elif ((stmt.tag == 'Ist_Put') | (stmt.tag == 'Ist_PutI')):
-            if stmt.data.tag == 'Iex_RdTmp':
-                if (constMapping.get(stmt.data)):
-                    block[i].data = constMapping[stmt.data]
+                    if (constMapping.get(args[j])):
+                        block[i].data.args[j] = constMapping[args[j]]
+            elif stmt.data.tag == 'Iex_Load':
+                addr = stmt.data.addr
+                if (constMapping.get(addr)):
+                    block[i].data.addr = constMapping[addr]
+
+        # replace tmp for Store
+        elif stmt.tag == 'Ist_Store':
+            if (constMapping.get(stmt.addr)):
+                block[i].addr = constMapping[stmt.addr]
+            if (constMapping.get(stmt.data)):
+                block[i].data = constMapping[stmt.data]
+
         # replace tmp for Exit
         elif stmt.tag == 'Ist_Exit':
             if stmt.guard.tag == 'Iex_RdTmp':
@@ -160,7 +207,7 @@ def ConstFolding(block):
 
     return block
 
-# Get-Get
+# Get-Get Elimination (maybe?)
 
 # Load-Load Elimination
 def LLEliminate(block):
@@ -179,7 +226,7 @@ def LLEliminate(block):
             if (tmpMapping.get(wrTmp)):
                 del tmpMapping[wrTmp]
             if (wrTmp in loadedMapping.values()):
-                for key in loadedMapping:
+                for key in loadedMapping.keys():
                     if loadedMapping[key] == wrTmp:
                         del loadedMapping[key]
                         break
@@ -200,15 +247,22 @@ def LLEliminate(block):
             elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop') | (stmt.data.tag == 'Iex_CCall')):
                 args = stmt.data.args
                 for j in range(0, len(args)):
-                    if args[j].tag == 'Iex_RdTmp':
-                        if (tmpMapping.get(args[j])):
-                            block[i].data.args[j] = tmpMapping[args[j]]
+                    if (tmpMapping.get(args[j])):
+                        block[i].data.args[j] = tmpMapping[args[j]]
+
+        #replace tmp for store
+        elif stmt.tag == 'Ist_Store':
+            if (tmpMapping.get(stmt.addr)):
+                block[i].addr = tmpMapping[stmt.addr]
+            if (tmpMapping.get(stmt.data)):
+                block[i].data = tmpMapping[stmt.data]
 
         # replace tmp for put
-        elif ((stmt.tag == 'Ist_Put') | (stmt.tag == 'Ist_PutI')):
+        elif (stmt.tag == 'Ist_Put'):
             if stmt.data.tag == 'Iex_RdTmp':
                 if (tmpMapping.get(stmt.data)):
                     block[i].data = tmpMapping[stmt.data]
+
         # replace tmp for Exit
         elif stmt.tag == 'Ist_Exit':
             if stmt.guard.tag == 'Iex_RdTmp':

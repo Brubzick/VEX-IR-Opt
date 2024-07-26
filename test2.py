@@ -1,5 +1,5 @@
 import angr
-from IR_opt import VEXOpt
+from IR_opt_plus import VEXOpt
 
 proj = angr.Project('./dfs3', auto_load_libs=False)
 
