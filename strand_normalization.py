@@ -13,21 +13,6 @@ def GetName(stmt_str):
             variables.append(stmt_str_list[i])
     
     return variables
-
-
-# def StrandNorm(strand, indexDict):
-
-#     for i in range(0, len(strand)):
-#         variables = GetName(str(strand[i]))
-        
-#         for name in variables:
-#             if (name not in indexDict):
-#                 indexDict[name] = 't'+str(indexDict['max'])
-#                 indexDict['max'] = indexDict['max'] + 1
-
-#             strand[i] = str(strand[i]).replace(name, indexDict[name])
-        
-#     return (strand, indexDict)
         
 
 def TypeNorm(stmt):

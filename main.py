@@ -1,5 +1,6 @@
 import angr
 from whole_process import VexOptHash
+from whole_process_2 import VexOptHash2
 
 # Query
 proj1 = angr.Project('./C_files/dfs', auto_load_libs=False)
@@ -13,15 +14,15 @@ proj7 = angr.Project('./C_files/insert_sort', auto_load_libs=False)
 proj8 = angr.Project('./C_files/shell_sort', auto_load_libs=False)
 proj9 = angr.Project('./C_files/whatever', auto_load_libs=False)
 
-hashedSet1 = VexOptHash(proj1)
-hashedSet2 = VexOptHash(proj2)
-hashedSet3 = VexOptHash(proj3)
-hashedSet4 = VexOptHash(proj4)
-hashedSet5 = VexOptHash(proj5)
-hashedSet6 = VexOptHash(proj6)
-hashedSet7 = VexOptHash(proj7)
-hashedSet8 = VexOptHash(proj8)
-hashedSet9 = VexOptHash(proj9)
+hashedSet1 = VexOptHash2(proj1)
+hashedSet2 = VexOptHash2(proj2)
+hashedSet3 = VexOptHash2(proj3)
+hashedSet4 = VexOptHash2(proj4)
+hashedSet5 = VexOptHash2(proj5)
+hashedSet6 = VexOptHash2(proj6)
+hashedSet7 = VexOptHash2(proj7)
+hashedSet8 = VexOptHash2(proj8)
+hashedSet9 = VexOptHash2(proj9)
 
 allTarSet = [hashedSet2,hashedSet3,hashedSet4,hashedSet5,hashedSet6,hashedSet7,hashedSet8,hashedSet9]
 

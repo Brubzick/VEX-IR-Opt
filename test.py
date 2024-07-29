@@ -1,15 +1,24 @@
 import angr
-from IR_opt import VEXOpt
+import pyvex
+from Vex_opt import VexOpt
 
-proj = angr.Project('./dfs', auto_load_libs=False)
+proj = angr.Project('./C_files/dfs', auto_load_libs=False)
 
 cfg = proj.analyses.CFGFast(normalize=True)
 
-for node in cfg.nodes():
-    if (not node.is_simprocedure):
-        for stmt in node.block.vex.statements:
-            if stmt.tag =='Ist_Store':
-                print(stmt, stmt.addr)
-            elif stmt.tag == 'Ist_WrTmp':
-                if stmt.data.tag == 'Iex_Load':
-                    print(stmt, stmt.data.addr)
+nodeList = list(cfg.nodes())
+
+allStmt = []
+
+# for node in cfg.nodes():
+#     if (not node.is_simprocedure):
+#         node.block.vex.pp()
+
+statements = nodeList[0].block.vex.statements
+
+
+put = statements[2]
+get = statements[4]
+print(get.data.tag)
+get.data = put.data
+print(get.data.tag)
