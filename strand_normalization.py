@@ -40,24 +40,43 @@ def TypeNorm(stmt):
 
         case 'Ist_WrTmp':
             exType = stmt.data.tag
-            if exType == 'Iex_Get':
-                norm = 'Get'
-            elif exType == 'Iex_RdTmp':
-                norm = 'Copy'
-            elif exType == 'Iex_Const':
-                norm = 'Const'
-            elif exType == 'Iex_Load':
-                norm == 'Load'
-            elif exType == 'Iex_CCall':
-                norm == 'CCall'
-            elif ((exType == 'Iex_Unop') | (exType == 'Iex_Binop') | (exType == 'Iex_Triop') | (exType == 'Iex_Qop')):
-                op = str(stmt.data.op)
-                for i in range(len(op)-1,-1,-1):
-                    if (not op[i:].isdigit()):
-                        break
-                norm == op[:i+1]
-            else:
-                norm = 'stmt.data.tag'
+            match exType:
+                case 'Iex_Get':
+                    norm = 'Get'
+                case 'Iex_RdTmp':
+                    norm = 'Copy'
+                case 'Iex_Const':
+                    norm = 'Const'
+                case 'Iex_Load':
+                    norm = 'Load'
+                case 'Iex_CCall':
+                    norm = 'CCall'
+                case 'Iex_Unop':
+                    op = str(stmt.data.op)
+                    for i in range(len(op)-1,-1,-1):
+                        if (not op[i:].isdigit()):
+                            break
+                    norm = op[:i+1]
+                case 'Iex_Binop':
+                    op = str(stmt.data.op)
+                    for i in range(len(op)-1,-1,-1):
+                        if (not op[i:].isdigit()):
+                            break
+                    norm = op[:i+1]
+                case 'Iex_Triop':
+                    op = str(stmt.data.op)
+                    for i in range(len(op)-1,-1,-1):
+                        if (not op[i:].isdigit()):
+                            break
+                    norm = op[:i+1]
+                case 'Iex_Qop':
+                    op = str(stmt.data.op)
+                    for i in range(len(op)-1,-1,-1):
+                        if (not op[i:].isdigit()):
+                            break
+                    norm = op[:i+1]
+                case _:
+                    norm = stmt.data.tag
 
         case 'Ist_Store':
             if stmt.data.tag == 'Iex_Const':
@@ -66,7 +85,7 @@ def TypeNorm(stmt):
                 norm = 'STle' 
 
         case _:
-            norm = 'stmt.tag'
+            norm = stmt.tag
     
     return norm
 

@@ -1,6 +1,7 @@
 import angr
 from whole_process import VexOptHash
 from whole_process_2 import VexOptHash2
+from whole_process_3 import VexOptHash3
 
 # Query
 proj1 = angr.Project('./C_files/dfs', auto_load_libs=False)
@@ -33,7 +34,7 @@ hashedSet12 = VexOptHash2(proj12)
 allTarSet = [hashedSet2,hashedSet3,hashedSet4,hashedSet5,hashedSet6,hashedSet7,hashedSet8,hashedSet9,hashedSet10,hashedSet11,hashedSet12]
 
 # Compare 1 and 2
-intersection = set(hashedSet1).intersection(set(hashedSet3))
+intersection = set(hashedSet1).intersection(set(hashedSet2))
 
 # simScore
 simScore = 0
@@ -42,10 +43,10 @@ for strand in intersection:
     for hashedSet in allTarSet:
         count += hashedSet.count(strand)
     
-    simScore += 8/count # number of targets divided by strand frequency
+    simScore += 11/count # number of targets divided by strand frequency
 
 print(simScore)
-print(len(set(hashedSet1)), len(set(hashedSet3)))
+print(len(set(hashedSet1)), len(set(hashedSet2)))
 
 
 
