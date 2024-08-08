@@ -42,11 +42,11 @@ for strand in intersection:
     count = 0
     for hashedSet in allTarSet:
         count += hashedSet.count(strand)
-    
-    simScore += 11/count # number of targets divided by strand frequency
+
+    simScore += len(allTarSet)/count # number of targets divided by strand frequency
 
 print(simScore)
-print(len(set(hashedSet1)), len(set(hashedSet2)))
+print(len(intersection))
 
 
 

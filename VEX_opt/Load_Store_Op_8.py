@@ -18,7 +18,7 @@ def LLEliminate(block):
                 loadAddr = stmt.data.addr
                 if (loadedMapping.get(loadAddr)):
                     tmpMapping[wrTmp] = loadedMapping[loadAddr]
-                    block.remove(block[i])
+                    del block[i]
                     delFlag = True
                 else:
                     loadedMapping[loadAddr] = wrTmp
@@ -85,7 +85,7 @@ def LSEliminate(block):
         
         elif stmt.tag == 'Ist_Store':
             if (stmt.data in loadedSet):
-                block.remove(block[i])
+                del block[i]
                 delFlag = True
         
         if (not delFlag):
@@ -95,27 +95,30 @@ def LSEliminate(block):
 
 # Store-Store Elimination
 def SSEliminate(block):
-    i = 0
-    storedAddr = {}
+    i = len(block) - 1
 
-    while (i < len(block)):
+    while (i >= 0):
         stmt = block[i]
-        delFlag = False
+        delIndexList = []
 
         if stmt.tag == 'Ist_Store':
             tAddr = stmt.addr
-            if (tAddr in storedAddr):
-                block.remove(storedAddr[tAddr])
-                delFlag = True
-            storedAddr[tAddr] = stmt
 
-        elif stmt.tag =='Ist_WrTmp':
-            if stmt.data.tag == 'Iex_Load':
-                tAddr = stmt.data.addr
-                if (tAddr in storedAddr):
-                    del storedAddr[tAddr]
+            for j in range(i,-1,-1):
+                preStmt = block[j]
+
+                if preStmt.tag == 'Ist_WrTmp':
+                    if preStmt.data.tag == 'Iex_Load':
+                        if preStmt.data.addr == tAddr:
+                            break
+                
+                elif preStmt.tag == 'Ist_Store':
+                    if preStmt.addr == tAddr:
+                        delIndexList.append(j)
+
+        for index in delIndexList:
+            del block[index]
         
-        if (not delFlag):
-            i += 1
+        i -= (1 + len(delIndexList))
 
     return block

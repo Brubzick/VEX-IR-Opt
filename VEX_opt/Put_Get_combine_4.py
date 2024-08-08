@@ -25,6 +25,6 @@ def PGComb(block):
         
     delIndex.sort(reverse=True)
     for index in delIndex:
-        block.remove(block[index])
+        del block[index]
 
     return block

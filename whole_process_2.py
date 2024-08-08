@@ -12,7 +12,7 @@ def VexOptHash2(proj):
             block = node.block.vex.statements
             block = VexOpt(block)
             blockList.append(block)
-
+            
     strands = GetAllStrandsNorm(blockList)
 
     hashedSet = GetHashedStrands(strands)

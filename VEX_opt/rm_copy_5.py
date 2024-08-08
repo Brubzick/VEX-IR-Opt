@@ -26,7 +26,7 @@ def RmCopy(block):
                             elif subStmt.data.tag == 'Iex_Load':
                                 if subStmt.data.addr == wrTmp:
                                     block[j].data.addr = refTmp
-                            elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop') | (stmt.data.tag == 'Iex_CCall')):
+                            elif ((subStmt.data.tag == 'Iex_Unop') | (subStmt.data.tag == 'Iex_Binop') | (subStmt.data.tag == 'Iex_Triop') | (subStmt.data.tag == 'Iex_Qop') | (subStmt.data.tag == 'Iex_CCall')):
                                 args = subStmt.data.args
                                 for k in range(0, len(args)):
                                     if args[k] == wrTmp:
@@ -38,12 +38,12 @@ def RmCopy(block):
                         if subStmt.addr == wrTmp:
                             block[j].addr = refTmp
 
-                    elif stmt.tag == 'Ist_Exit':
+                    elif subStmt.tag == 'Ist_Exit':
                         if subStmt.guard == wrTmp:
                             block[j].guard = refTmp
-        
+    
     delIndex.sort(reverse=True)
     for index in delIndex:
-        block.remove(block[index])
+        del block[index]
 
     return block

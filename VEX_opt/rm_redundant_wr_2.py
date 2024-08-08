@@ -22,7 +22,7 @@ def RmRedunantR(block): # block is a list of IR stmt
                         delIndexList.append(j)
 
         for index in delIndexList:
-            block.remove(block[index])
+            del block[index]
         
         i -= (1 + len(delIndexList))
 

@@ -10,8 +10,7 @@ def GGEliminate(block):
         if stmt.tag == 'Ist_WrTmp':
             if stmt.data.tag == 'Iex_Get':
                 regOffset = stmt.data.offset
-                wrTmp = pyvex.expr.RdTmp.get_instance(stmt.tmp)
-                used = False
+                wrTmp = pyvex.expr.RdTmp.get_instance(stmt.tmp)   
 
                 for j in range(i+1, len(block)):
                     subStmt = block[j]
@@ -20,23 +19,56 @@ def GGEliminate(block):
                         if subStmt.data.tag == 'Iex_Get':
                             if subWrTmp == wrTmp:
                                 if regOffset == subStmt.data.offset:
-                                    delIndex.append(j)
-                            else:
-                                if (not used):
-                                    if (i not in delIndex): delIndex.append(i)
-                        # 还有一种只有offset相同的情况，暂时先不考虑
+                                    if (j not in delIndex):
+                                        delIndex.append(j)
+                                else:
+                                    if (i not in delIndex):
+                                        delIndex.append(i)
+                                    break 
 
-                        elif subWrTmp == wrTmp:
-                            break
+                            # 只有offset相同的情况
+                            else:
+                                if regOffset == subStmt.data.offset:
+                                    if (j not in delIndex):
+                                        delIndex.append(j)
+
+                                    for k in range(j+1, len(block)):
+                                        subSubStmt = block[k]
+                                        if subSubStmt.tag == 'Ist_WrTmp':
+                                            subSubWrTmp = pyvex.expr.RdTmp.get_instance(subSubStmt.tmp)
+                                            if subSubWrTmp == subWrTmp:
+                                                break
+                                            else:
+                                                if subSubStmt.data.tag == 'Iex_RdTmp':
+                                                    if subSubStmt.data == subWrTmp:
+                                                        block[k].data = wrTmp
+                                                elif subSubStmt.data.tag == 'Iex_Load':
+                                                    if subSubStmt.data.addr == subWrTmp:
+                                                        block[k].data.addr = wrTmp
+                                                elif ((subSubStmt.data.tag == 'Iex_Unop') | (subSubStmt.data.tag == 'Iex_Binop') | (subSubStmt.data.tag == 'Iex_Triop') | (subSubStmt.data.tag == 'Iex_Qop') | (subSubStmt.data.tag == 'Iex_CCall')):
+                                                    args = subSubStmt.data.args
+                                                    for l in range(0, len(args)):
+                                                        if args[l] == subWrTmp:
+                                                            block[k].data.args[l] = wrTmp
+                                        
+                                        elif subSubStmt.tag == 'Ist_Store':
+                                            if subSubStmt.data == subWrTmp:
+                                                block[k].data = wrTmp
+                                            if subSubStmt.addr == subWrTmp:
+                                                block[k].addr = wrTmp
+
+                                        elif subSubStmt.tag == 'Ist_Exit':
+                                            if subSubStmt.guard == subWrTmp:
+                                                block[k].guard = wrTmp
 
                         else:
-                            if (str(wrTmp) in str(subStmt.data)): used = True
+                            if (str(wrTmp) in str(subStmt.data)): break
                     else:
-                        if (str(wrTmp) in str(subStmt)): used = True
+                        if (str(wrTmp) in str(subStmt)): break
 
         delIndex.sort(reverse=True)
         for index in delIndex:
-            block.remove(block[index])
+            del block[index]
         
         i += (1 - len(delIndex))
     
