@@ -1,7 +1,5 @@
 import angr
-from whole_process import VexOptHash
-from whole_process_2 import VexOptHash2
-from whole_process_3 import VexOptHash3
+from whole_process import VexOptStrands
 
 # Query
 proj1 = angr.Project('./C_files/dfs', auto_load_libs=False)
@@ -18,35 +16,55 @@ proj10 = angr.Project('./C_files/insert_sort3',auto_load_libs=False)
 proj11 = angr.Project('./C_files/shell_sort3',auto_load_libs=False)
 proj12 = angr.Project('./C_files/dfs2',auto_load_libs=False)
 
-hashedSet1 = VexOptHash2(proj1)
-hashedSet2 = VexOptHash2(proj2)
-hashedSet3 = VexOptHash2(proj3)
-hashedSet4 = VexOptHash2(proj4)
-hashedSet5 = VexOptHash2(proj5)
-hashedSet6 = VexOptHash2(proj6)
-hashedSet7 = VexOptHash2(proj7)
-hashedSet8 = VexOptHash2(proj8)
-hashedSet9 = VexOptHash2(proj9)
-hashedSet10 = VexOptHash2(proj10)
-hashedSet11 = VexOptHash2(proj11)
-hashedSet12 = VexOptHash2(proj12)
+strands1 = VexOptStrands(proj1)
+strands2 = VexOptStrands(proj2)
+strands3 = VexOptStrands(proj3)
+strands4 = VexOptStrands(proj4)
+strands5 = VexOptStrands(proj5)
+strands6 = VexOptStrands(proj6)
+strands7 = VexOptStrands(proj7)
+strands8 = VexOptStrands(proj8)
+strands9 = VexOptStrands(proj9)
+strands10 = VexOptStrands(proj10)
+strands11 = VexOptStrands(proj11)
+strands12 = VexOptStrands(proj12)
 
-allTarSet = [hashedSet2,hashedSet3,hashedSet4,hashedSet5,hashedSet6,hashedSet7,hashedSet8,hashedSet9,hashedSet10,hashedSet11,hashedSet12]
+allTarStrands = [strands2,strands3,strands4,strands5,strands6,strands7,strands8,strands9,strands10,strands11,strands12]
 
-# Compare 1 and 2
-intersection = set(hashedSet1).intersection(set(hashedSet2))
+# Compare the Query with 1 Target
+sSet1 = set(strands1)
+sSet2 = set(strands2)
 
-# simScore
 simScore = 0
-for strand in intersection:
+for s2 in sSet2:
+    mp = 0
+    for s1 in sSet1:
+        if s2 == s1:
+            mp = 1
+            break
+        else:
+            if s1 in s2:
+                tp = len(s1)/len(s2)
+                if tp > mp:
+                    mp = tp
+            elif s2 in s1:
+                tp = len(s2)/len(s1)
+                if tp > mp:
+                    mp = tp
+    
     count = 0
-    for hashedSet in allTarSet:
-        count += hashedSet.count(strand)
-
-    simScore += len(allTarSet)/count # number of targets divided by strand frequency
+    for strands in allTarStrands:
+        for strand in strands:
+            if s2 == strand:
+                count += 1
+            elif s2 in strand:
+                count += len(s2)/len(strand)
+            elif strand in s2:
+                count += len(strand)/len(s2)
+    
+    simScore += mp*len(allTarStrands)/count
 
 print(simScore)
-print(len(intersection))
-
+print(len(sSet1), len(sSet2))
 
 

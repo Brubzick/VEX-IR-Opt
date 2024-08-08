@@ -1,4 +1,4 @@
-from Vex_opt import VexOpt
+from vex_opt import VexOpt
 from get_strands import GetStrands
 from strand_normalization import TypeNorm
 from hash import GetHashedStrands

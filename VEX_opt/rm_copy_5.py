@@ -26,7 +26,8 @@ def RmCopy(block):
                             elif subStmt.data.tag == 'Iex_Load':
                                 if subStmt.data.addr == wrTmp:
                                     block[j].data.addr = refTmp
-                            elif ((subStmt.data.tag == 'Iex_Unop') | (subStmt.data.tag == 'Iex_Binop') | (subStmt.data.tag == 'Iex_Triop') | (subStmt.data.tag == 'Iex_Qop') | (subStmt.data.tag == 'Iex_CCall')):
+                            # 去除了Iex_CCall，因为大多时候无更改
+                            elif ((subStmt.data.tag == 'Iex_Unop') | (subStmt.data.tag == 'Iex_Binop') | (subStmt.data.tag == 'Iex_Triop') | (subStmt.data.tag == 'Iex_Qop')):
                                 args = subStmt.data.args
                                 for k in range(0, len(args)):
                                     if args[k] == wrTmp:

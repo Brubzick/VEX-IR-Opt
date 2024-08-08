@@ -26,7 +26,8 @@ def LLEliminate(block):
                 if stmt.data.tag == 'Iex_Rdtmp':
                     if (tmpMapping.get(stmt.data)):
                         block[i].data = tmpMapping[stmt.data]
-                elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop') | (stmt.data.tag == 'Iex_CCall')):
+                # 去除了Iex_CCall，因为大多时候无更改
+                elif ((stmt.data.tag == 'Iex_Unop') | (stmt.data.tag == 'Iex_Binop') | (stmt.data.tag == 'Iex_Triop') | (stmt.data.tag == 'Iex_Qop')):
                     args = stmt.data.args
                     for j in range(0, len(args)):
                         if (tmpMapping.get(args[j])):

@@ -1,20 +1,27 @@
-from IR_opt import VEXOpt
-from get_strands import GetAllStrandsNorm
-from hash import GetHashedStrands
+from vex_opt import VexOpt
+from find_longest_path import FindLongest
+from get_strands import GetStrands
+from strand_normalization import TypeNorm
 
-def VexOptHash(proj):
+def VexOptStrands(proj):
     cfg = proj.analyses.CFGFast(normalize=True)
 
-    blockList = []
+    lP = FindLongest(cfg)
 
-    for node in cfg.nodes():
+    statements = []
+
+    for node in lP:
         if (not node.is_simprocedure):
-            block = node.block.vex.statements
-            block = VEXOpt(block)
-            blockList.append(block)
+            statements.extend(node.block.vex.statements)
 
-    strands = GetAllStrandsNorm(blockList)
+    optVex = VexOpt(statements)
 
-    hashedSet = GetHashedStrands(strands)
+    strands = GetStrands(optVex)
+    for i in range(0, len(strands)):
+        for j in range(0, len(strands[i])):
+            strands[i][j] = TypeNorm(strands[i][j])
 
-    return hashedSet
+    for i in range(0, len(strands)):
+        strands[i] = ''.join(strands[i])
+    
+    return strands

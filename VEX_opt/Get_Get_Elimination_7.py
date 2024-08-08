@@ -45,7 +45,8 @@ def GGEliminate(block):
                                                 elif subSubStmt.data.tag == 'Iex_Load':
                                                     if subSubStmt.data.addr == subWrTmp:
                                                         block[k].data.addr = wrTmp
-                                                elif ((subSubStmt.data.tag == 'Iex_Unop') | (subSubStmt.data.tag == 'Iex_Binop') | (subSubStmt.data.tag == 'Iex_Triop') | (subSubStmt.data.tag == 'Iex_Qop') | (subSubStmt.data.tag == 'Iex_CCall')):
+                                                # 去除了Iex_CCall，因为大多时候无更改
+                                                elif ((subSubStmt.data.tag == 'Iex_Unop') | (subSubStmt.data.tag == 'Iex_Binop') | (subSubStmt.data.tag == 'Iex_Triop') | (subSubStmt.data.tag == 'Iex_Qop')):
                                                     args = subSubStmt.data.args
                                                     for l in range(0, len(args)):
                                                         if args[l] == subWrTmp:
