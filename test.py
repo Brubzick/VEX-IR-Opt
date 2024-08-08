@@ -1,24 +1,102 @@
 import angr
-import pyvex
-from Vex_opt import VexOpt
+from whole_process import VexOptStrands
 
-proj = angr.Project('./C_files/dfs', auto_load_libs=False)
+proj1 = angr.Project('../C_bin/dfs_gcc_O0', auto_load_libs=False)
+proj2 = angr.Project('../C_bin/dfs_gcc_O1', auto_load_libs=False)
+proj3 = angr.Project('../C_bin/dfs_gcc_O2', auto_load_libs=False)
+proj4 = angr.Project('../C_bin/dfs_gcc_O3', auto_load_libs=False)
+proj5 = angr.Project('../C_bin/bfs_gcc_O0', auto_load_libs=False)
+proj6 = angr.Project('../C_bin/bfs_gcc_O1', auto_load_libs=False)
+proj7 = angr.Project('../C_bin/bfs_gcc_O2', auto_load_libs=False)
+proj8 = angr.Project('../C_bin/bfs_gcc_O3', auto_load_libs=False)
+proj9 = angr.Project('../C_bin/dfs_clang_O0', auto_load_libs=False)
+proj10 = angr.Project('../C_bin/dfs_clang_O1',auto_load_libs=False)
+proj11 = angr.Project('../C_bin/dfs_clang_O2',auto_load_libs=False)
+proj12 = angr.Project('../C_bin/dfs_clang_O3',auto_load_libs=False)
+proj13 = angr.Project('../C_bin/bfs_clang_O0',auto_load_libs=False)
+proj14 = angr.Project('../C_bin/bfs_clang_O1',auto_load_libs=False)
+proj15 = angr.Project('../C_bin/bfs_clang_O2',auto_load_libs=False)
+proj16 = angr.Project('../C_bin/bfs_clang_O3',auto_load_libs=False)
+proj17 = angr.Project('../C_bin/dfs_gcc2_O0', auto_load_libs=False)
+proj18 = angr.Project('../C_bin/dfs_gcc2_O1', auto_load_libs=False)
+proj19 = angr.Project('../C_bin/dfs_gcc2_O2', auto_load_libs=False)
+proj20 = angr.Project('../C_bin/dfs_gcc2_O3', auto_load_libs=False)
+proj21 = angr.Project('./C_files/insert_sort', auto_load_libs=False)
+proj22 = angr.Project('./C_files/shell_sort', auto_load_libs=False)
+proj23 = angr.Project('./C_files/whatever', auto_load_libs=False)
+proj24 = angr.Project('./C_files/hello', auto_load_libs=False)
+proj25 = angr.Project('./C_files/insert_sort3', auto_load_libs=False)
+proj26 = angr.Project('./C_files/shell_sort3', auto_load_libs=False)
+proj27 = angr.Project('./C_files/hello3', auto_load_libs=False)
 
-cfg = proj.analyses.CFGFast(normalize=True)
+# strands1 = VexOptStrands(proj1)
+# strands2 = VexOptStrands(proj2)
+# strands3 = VexOptStrands(proj3)
+# strands4 = VexOptStrands(proj4)
+# strands5 = VexOptStrands(proj5)
+# strands6 = VexOptStrands(proj6)
+# strands7 = VexOptStrands(proj7)
+# strands8 = VexOptStrands(proj8)
+# strands9 = VexOptStrands(proj9)
+# strands10 = VexOptStrands(proj10)
+# strands11 = VexOptStrands(proj11)
+# strands12 = VexOptStrands(proj12)
+# strands13 = VexOptStrands(proj13)
+# strands14 = VexOptStrands(proj14)
+# strands15 = VexOptStrands(proj15)
+# strands16 = VexOptStrands(proj16)
+# strands17 = VexOptStrands(proj17)
+# strands20 = VexOptStrands(proj20)
+strands21 = VexOptStrands(proj21)
+strands22 = VexOptStrands(proj22)
+strands23 = VexOptStrands(proj23)
+strands24 = VexOptStrands(proj24)
+strands25 = VexOptStrands(proj25)
+strands26 = VexOptStrands(proj26)
+strands27 = VexOptStrands(proj27)
 
-nodeList = list(cfg.nodes())
+allTarStrands = [strands21,strands22,strands23,strands24,strands25,strands26,strands27]
 
-allStmt = []
+# Compare the Query with 1 Target
+strand1 = VexOptStrands(proj15)
+strand2 = VexOptStrands(proj17)
 
-# for node in cfg.nodes():
-#     if (not node.is_simprocedure):
-#         node.block.vex.pp()
+if (strand1 not in allTarStrands):
+    allTarStrands.append(strand1)
+if (strand2 not in allTarStrands):
+    allTarStrands.append(strand2)
 
-statements = nodeList[0].block.vex.statements
+sSet1 = set(strand1)
+sSet2 = set(strand2)
 
+simScore = 0
+for s2 in sSet2:
+    mp = 0
+    for s1 in sSet1:
+        if s2 == s1:
+            mp = 1
+            break
+        else:
+            if s1 in s2:
+                tp = len(s1)/len(s2)
+                if tp > mp:
+                    mp = tp
+            elif s2 in s1:
+                tp = len(s2)/len(s1)
+                if tp > mp:
+                    mp = tp
+    count = 0
+    for strands in allTarStrands:
+        for strand in strands:
+            if strand == s2:
+                count += 1
+            elif strand in s2:
+                count += len(strand)/len(s2)
+            elif s2 in strand:
+                count += len(s2)/len(strand)
 
-put = statements[2]
-get = statements[4]
-print(get.data.tag)
-get.data = put.data
-print(get.data.tag)
+    simScore += mp*len(allTarStrands)/count
+    # simScore += mp
+
+print(simScore)
+print(len(sSet1), len(sSet2))
