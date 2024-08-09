@@ -23,9 +23,9 @@ def TypeNorm(stmt):
     match tag:
         case 'Ist_Put':
             if stmt.data.tag == 'Iex_Const':
-                norm = 'Put.cons'
+                norm = 'Put_con'
             else:
-                norm = 'Put'  
+                norm = 'Ist_Put'  
 
         case 'Ist_PutI':
             stmt_str_list = stmt_str.split()
@@ -34,23 +34,23 @@ def TypeNorm(stmt):
                     tmp = stmt_str_list[i+1]
                     break
             if tmp[0:2] == '0x':
-                norm = 'PutI.cons'
+                norm = 'PutIcons'
             else:
-                norm = 'PutI'  
+                norm = 'IstPutI'  
 
         case 'Ist_WrTmp':
             exType = stmt.data.tag
             match exType:
                 case 'Iex_Get':
-                    norm = 'Get'
+                    norm = 'Iex_Get'
                 case 'Iex_RdTmp':
-                    norm = 'Copy'
+                    norm = 'IexCopy'
                 case 'Iex_Const':
-                    norm = 'Const'
+                    norm = 'Iex_Con'
                 case 'Iex_Load':
-                    norm = 'Load'
+                    norm = 'IexLoad'
                 case 'Iex_CCall':
-                    norm = 'CCall'
+                    norm = 'IexCall'
                 case 'Iex_Unop':
                     op = str(stmt.data.op)
                     for i in range(len(op)-1,-1,-1):
@@ -80,9 +80,9 @@ def TypeNorm(stmt):
 
         case 'Ist_Store':
             if stmt.data.tag == 'Iex_Const':
-                norm = 'STle.cons'
+                norm = 'STl_con'
             else:
-                norm = 'STle' 
+                norm = 'Ist_STl' 
 
         case _:
             norm = stmt.tag
