@@ -39,18 +39,13 @@ simScore = 0
 for s2 in sSet2:
     mp = 0
     for s1 in sSet1:
-        if s2 == s1:
+        if s2 in s1:
             mp = 1
             break
-        else:
-            if s1 in s2:
-                tp = len(s1)/len(s2)
-                if tp > mp:
-                    mp = tp
-            elif s2 in s1:
-                tp = len(s2)/len(s1)
-                if tp > mp:
-                    mp = tp
+        elif s1 in s2:
+            tp = len(s1)/len(s2)
+            if tp > mp:
+                mp = tp
     
     count = 0
     for strands in allTarStrands:

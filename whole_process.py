@@ -1,12 +1,13 @@
 from vex_opt import VexOpt
-from find_longest_path import FindLongest
+from longest_path import FindLongest
 from get_strands import GetStrands
 from strand_normalization import TypeNorm
 
 def VexOptStrands(proj):
     cfg = proj.analyses.CFGFast(normalize=True)
+    entry = cfg.get_any_node(proj.entry)
 
-    lP = FindLongest(cfg)
+    lP = FindLongest(cfg,entry)
 
     statements = []
 
@@ -20,8 +21,5 @@ def VexOptStrands(proj):
     for i in range(0, len(strands)):
         for j in range(0, len(strands[i])):
             strands[i][j] = TypeNorm(strands[i][j])
-
-    for i in range(0, len(strands)):
-        strands[i] = ''.join(strands[i])
     
     return strands
