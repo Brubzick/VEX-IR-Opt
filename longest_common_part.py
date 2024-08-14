@@ -8,14 +8,18 @@ def FindComPart(strand1, strand2): # 用strand2去比strand1,找最长公共部�
 
     lcp = []
     for i in range(l1 - l2 + 1):
-        comStr = []
+        comPart = []
         for j in range(l2):
             if (strand1[i + j] == strand2[j]):
-                comStr.append(strand2[j])
+                comPart.append(strand2[j])
             else:
-                if (len(comStr) > len(lcp)):
-                    lcp = comStr
-                    comStr = []
+                if (len(comPart) > len(lcp)):
+                    lcp = comPart
+                    comPart = []
+            if (j == l2 -1):
+                if (len(comPart) > len(lcp)):
+                    lcp = comPart
+                    comPart = []
         
         if len(lcp) == maxL:
             break

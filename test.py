@@ -1,5 +1,5 @@
 import angr
-from whole_process import VexOptStrands
+from process_longest_path import VexOptStrands
 from longest_common_part import FindComPart
 
 proj1 = angr.Project('../C_bin/dfs_gcc_O0', auto_load_libs=False)
