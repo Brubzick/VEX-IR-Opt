@@ -17,7 +17,8 @@ def Compare(strands1, strands2, mode = 'normal', base = None):
         if (s not in sSet2):
             sSet2.append(s)
 
-    print(len(sSet1), len(sSet2))
+    l1 = sSet1
+    l2 = sSet2
 
     if mode == 'small':
         if len(sSet1) < len(sSet2):
