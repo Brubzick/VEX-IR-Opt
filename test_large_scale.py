@@ -48,12 +48,12 @@ def is_ELF(filePath):
         return True
     return False
 
-foldPathList = ['../bin_range/arm', '../bin_range/file', '../bin_range/openssl', '../bin_range/ssh', '../bin_range/unzip', '../bin_range/wget', '../bin_range/x86']
+folderPathList = ['../bin_range/arm', '../bin_range/file', '../bin_range/openssl', '../bin_range/ssh', '../bin_range/unzip', '../bin_range/wget', '../bin_range/x86']
 
-for foldPath in foldPathList:
+projNameDict = {} # map the proj to its file name
+for foldPath in folderPathList:
     all_files = os.listdir(foldPath)
-    projNameDict = {} # map the proj to its file name
-
+    
     for file in all_files:
         filePath = os.path.join(foldPath, file)
         if is_ELF(filePath):
