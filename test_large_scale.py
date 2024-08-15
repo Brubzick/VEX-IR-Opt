@@ -72,6 +72,10 @@ for proj in projNameDict:
     blockList = VexOptStrands(proj)
     vexOptProjs.append(blockList)
 
+with open('large_test_data/vexOptProjs.json', 'w', encoding='utf-8') as f:
+    json.dump(vexOptProjs, f)
+with open('large_test_data/projName.json', 'w', encoding='utf-8') as f:
+    json.dump(projName, f)
 print('vex opt done.')
 
 n = len(vexOptProjs)
@@ -84,10 +88,13 @@ for i in range(n):
             sSet.append(block)
     sSetList.append(sSet)
 
-simMatrix = [[0]*n]*n
+with open('large_test_data/sSetList.json', 'w', encoding='utf-8') as f:
+    json.dump(sSetList, f) # for reference
+
+simMatrix = [['x']*n]*n
 print('Comparing...')
 for i in range(n):
-    for j in range(n):
+    for j in range(i, n):
         sSet1 = sSetList[i]
         sSet2 = sSetList[j]
         simScore = Compare(sSet1, sSet2, 'small', vexOptProjs)
@@ -96,11 +103,7 @@ for i in range(n):
         print('file1:',projName[i],'file2:',projName[j],'L1:',len(sSet1),'L2:',len(sSet2),'Sim:',simScore)
 
 # output data
-with open('sSetList.json', 'w', encoding='utf-8') as f:
-    json.dump(sSetList, f) # for reference
-with open('projName.json', 'w', encoding='utf-8') as f:
-    json.dump(projName, f)
-with open('simMatrix.json', 'w', encoding='utf-8') as f:
+with open('large_test_data/simMatrix.json', 'w', encoding='utf-8') as f:
     json.dump(simMatrix, f)
 
 
