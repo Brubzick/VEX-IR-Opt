@@ -1,38 +1,5 @@
 import json
-from longest_common_part import FindComPart
-
-def Compare(sSet1, sSet2, mode='normal', base=None):
-    if mode == 'small':
-        if len(sSet1) < len(sSet2):
-            t = sSet2
-            sSet2 = sSet1
-            sSet1 = t
-
-    simScore = 0
-    for s2 in sSet2:
-        mp = 0
-        for s1 in sSet1:
-            comPart = FindComPart(s1, s2)
-            tp = len(comPart)/len(s2)
-            if tp > mp:
-                mp = tp
-            if mp == 1:
-                break
-        
-        if base:
-            count = 0
-            for proj in base:
-                for block in proj:
-                    for j in range(0, len(block)-len(s2)+1):
-                        if (block[j:j+len(s2)] == s2):
-                            count += 1
-                            break
-            #if count == 0: count = 1 # normally base should contain the proj that is comparing
-            simScore += mp*len(base)/count
-        else:
-            simScore += mp
-        
-    return simScore
+from openpyxl import Workbook
 
 with open('large_test_data/projName.json', 'r') as f:
     projName = json.load(f)
@@ -40,17 +7,36 @@ with open('large_test_data/projName.json', 'r') as f:
 with open('large_test_data/sSetList.json', 'r') as f:
     sSetList = json.load(f)
 
-n = len(sSetList)
-simMatrix = [['x']*n]*n
-for i in range(n):
-    for j in range(i, n):
-        sSet1 = sSetList[i]
-        sSet2 = sSetList[j]
-        simScore = Compare(sSet1, sSet2, 'small')
-        simMatrix[i][j] = simScore
+with open('large_test_data/ac_arm_simScore_noBase.json', 'r') as f:
+    simVector = json.load(f)
 
-        print('file1:',projName[i],'file2:',projName[j],'L1:',len(sSetList[i]),'L2:',len(sSetList[j]),'Sim:',simScore)
+wb = Workbook()
+ws = wb.active
 
-# output data
-with open('large_test_data/simMatrix_noBase.json', 'w', encoding='utf-8') as f:
-    json.dump(simMatrix, f)
+fileIndex = simVector[-1]
+
+head = ['File name']
+sim = [projName[fileIndex]]
+lengthes = ['ComNode nums']
+ratio1 = ['Ratio1']
+ratio2 = ['Ratio2']
+comp = ['Comp score']
+
+for i in range(len(simVector)-1):
+    t = simVector[i]
+    head.append(projName[t[1]])
+    sim.append(t[0])
+    lengthes.append(len(sSetList[t[1]]))
+    r1 = t[0]/len(sSetList[fileIndex])
+    r2 = t[0]/len(sSetList[t[1]])
+    ratio1.append(r1)
+    ratio2.append(r2)
+    comp.append((r1+r2)/2)
+
+toWrite = [head, sim, lengthes, ratio1, ratio2, comp]
+
+for i in range(len(toWrite)):
+    for j in range(len(head)):
+        ws.cell(row=j+1,column=i+1,value=toWrite[i][j])
+
+wb.save(projName[fileIndex] + '_simVec.xlsx')

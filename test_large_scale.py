@@ -4,40 +4,7 @@ from process_strands import VexOptStrands
 from longest_common_part import FindComPart
 import json
 
-def Compare(sSet1, sSet2, mode='normal', base=None):
-    if mode == 'small':
-        if len(sSet1) < len(sSet2):
-            t = sSet2
-            sSet2 = sSet1
-            sSet1 = t
-
-    simScore = 0
-    for s2 in sSet2:
-        mp = 0
-        for s1 in sSet1:
-            comPart = FindComPart(s1, s2)
-            tp = len(comPart)/len(s2)
-            if tp > mp:
-                mp = tp
-            if mp == 1:
-                break
-        
-        if base:
-            count = 0
-            for proj in base:
-                for block in proj:
-                    for j in range(0, len(block)-len(s2)+1):
-                        if (block[j:j+len(s2)] == s2):
-                            count += 1
-                            break
-            #if count == 0: count = 1 # normally base should contain the proj that is comparing
-            simScore += mp*len(base)/count
-        else:
-            simScore += mp
-        
-    return simScore
-
-maxSize = 1024 * 800 # maximum size (b) of file that would be loaded
+maxSize = 1024 * 500 # maximum size (b) of file that would be loaded
 
 def is_ELF(filePath):
     f = open(filePath, 'rb')
@@ -48,7 +15,7 @@ def is_ELF(filePath):
         return True
     return False
 
-folderPathList = ['../bin_range/arm', '../bin_range/file', '../bin_range/openssl', '../bin_range/ssh', '../bin_range/unzip', '../bin_range/wget', '../bin_range/x86']
+folderPathList = ['../bin_range/arm', '../bin_range/file', '../bin_range/unzip', '../bin_range/x86']
 
 projNameDict = {} # map the proj to its file name
 for foldPath in folderPathList:
@@ -91,20 +58,20 @@ for i in range(n):
 with open('large_test_data/sSetList.json', 'w', encoding='utf-8') as f:
     json.dump(sSetList, f) # for reference
 
-simMatrix = [['x']*n]*n
-print('Comparing...')
-for i in range(n):
-    for j in range(i, n):
-        sSet1 = sSetList[i]
-        sSet2 = sSetList[j]
-        simScore = Compare(sSet1, sSet2, 'small', vexOptProjs)
-        simMatrix[i][j] = simScore
+# simMatrix = [['x']*n]*n
+# print('Comparing...')
+# for i in range(n):
+#     for j in range(i, n):
+#         sSet1 = sSetList[i]
+#         sSet2 = sSetList[j]
+#         simScore = Compare(sSet1, sSet2, 'small', vexOptProjs)
+#         simMatrix[i][j] = simScore
 
-        print('file1:',projName[i],'file2:',projName[j],'L1:',len(sSet1),'L2:',len(sSet2),'Sim:',simScore)
+#         print('file1:',projName[i],'file2:',projName[j],'L1:',len(sSet1),'L2:',len(sSet2),'Sim:',simScore)
 
-# output data
-with open('large_test_data/simMatrix.json', 'w', encoding='utf-8') as f:
-    json.dump(simMatrix, f)
+# # output data
+# with open('large_test_data/simMatrix.json', 'w', encoding='utf-8') as f:
+#     json.dump(simMatrix, f)
 
 
 

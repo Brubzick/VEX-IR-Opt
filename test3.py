@@ -1,5 +1,6 @@
-a = [1,2,3,4]
+a = [(3,1),(2,2),(1,3),4]
 
-a.insert(5, 5)
+b = a[:-1]
+b.sort(key= lambda n : n[0])
 
-print(a)
+print(b)
