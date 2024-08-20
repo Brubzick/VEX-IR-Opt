@@ -42,7 +42,7 @@ with open('large_test_data/sSetList.json', 'r') as f:
     sSetList = json.load(f)
 
 
-for fileIndex in range(len(sSetList)):
+for fileIndex in range(5,len(sSetList)):
     sSet1 = sSetList[fileIndex]
     filteredListIndex = Filter(sSet1, sSetList)
 
